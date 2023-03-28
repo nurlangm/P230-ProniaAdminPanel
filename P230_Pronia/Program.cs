@@ -12,7 +12,7 @@ builder.Services.AddDbContext<ProniaDbContext>(opt =>
 });
 
 builder.Services.AddScoped<LayoutService>();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpContextAccessor();  
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,8 +30,18 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+      name: "areas",
+      pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+    );
+    endpoints.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+});
+
+
 
 app.Run();

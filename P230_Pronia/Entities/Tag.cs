@@ -4,6 +4,6 @@
     {
         public string Name { get; set; }
 
-        public List<PlantTag> PlantTags { get; set; }
+        public List<PlantTag>? PlantTags { get; set; }
     }
 }
