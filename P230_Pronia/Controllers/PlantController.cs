@@ -16,6 +16,17 @@ namespace P230_Pronia.Controllers
         {
             _context = context;
         }
+        public IActionResult Index()
+        {
+            List<Plant> plants = _context.Plants.
+                Include(p => p.PlantTags).ThenInclude(tp => tp.Tag).
+                Include(p => p.PlantCategories).ThenInclude(cp => cp.Category).
+                Include(p => p.PlantDeliveryInformation).
+                 Include(p => p.PlantImages)
+                .ToList();
+            return View(plants);
+        }
+
         public IActionResult Detail(int id)
         {
             if (id == 0) return NotFound();
@@ -105,6 +116,22 @@ namespace P230_Pronia.Controllers
         {
             var cookies = HttpContext.Request.Cookies["basket"];
             return Json(JsonConvert.DeserializeObject<CookieBasketVM>(cookies));
+        }
+        public IActionResult RemoveBasketItem(int id)
+        {
+            var cookies = HttpContext.Request.Cookies["basket"];
+            var basket = JsonConvert.DeserializeObject<CookieBasketVM>(cookies);
+            var item = basket.CookieBasketItemVMs.FirstOrDefault(i => i.Id == id);
+            if (item is not null)
+            {
+                basket.CookieBasketItemVMs.Remove(item);
+                basket.TotalPrice -= item.Price * item.Quantity;
+
+                var basketStr = JsonConvert.SerializeObject(basket);
+                HttpContext.Response.Cookies.Append("basket", basketStr);
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
     }
